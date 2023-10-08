@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('title',150);
             $table->string('color_name',100);
             $table->text('description');
-            $table->string('size',3);
+            $table->string('size',100);
             $table->string('sanmar_mainframe_color', 100);
             $table->decimal('piece_price', 20, 2);
             $table->timestamp('updated_at')->nullable();
