@@ -45,16 +45,14 @@ class Uploadcsv implements ShouldQueue {
         // Process the CSV data in chunks
         $chunkSize = 100;
         $totalRows = $csv->count();
+        \Log::info("total rows: " . $totalRows);
 
         $batch = \App\Models\Batches::find($this->batchId);
-
-        \Log::info("batch: " . $batch->id);
 
         if (!$batch)
             exit();
 
         $onChunkProcessed = function ($rowCount, $done = 0) use ($batch, $totalRows) {
-            \Log::info("Processed $rowCount rows in the current chunk.");
             if ($done == 1)
                 Uploadcsv::incrementProgress($batch->id, 100);
             else {
@@ -68,7 +66,6 @@ class Uploadcsv implements ShouldQueue {
 
             \Log::info("unique key: " . ($row['UNIQUE_KEY']));
 
-            \Log::info(json_encode($row));
             $data = [
                 'title' => $row['PRODUCT_TITLE'],
                 'description' => $row['PRODUCT_DESCRIPTION'],
@@ -85,8 +82,6 @@ class Uploadcsv implements ShouldQueue {
 //
             \App\Models\BatchDetails::updateOrCreate($conditions, $data);
             $processedRows++;
-
-            \Log::info('DDDL: ' . $processedRows % $chunkSize);
 
             // Check if the current row count equals the chunk size
             if ($processedRows % $chunkSize === 0) {
@@ -106,19 +101,15 @@ class Uploadcsv implements ShouldQueue {
             exit();
 
         if ($batches->progress == 0 && $batches->status == 'pending') {
-            \Log::info('init: ' . $batchId . '|' . $batches->progress);
             $batches->status = 'processing';
             $batches->save();
         } else if ($batches->progress < 100) {
-            \Log::info('updating progress: ' . $batchId . '|' . $batches->progress);
             $batches->progress = $percent;
             $batches->save();
         } else if ($batches->progress == 100) {
-            \Log::info('completed : ' . $batchId . '|' . $batches->progress);
             $batches->status = 'completed';
             $batches->save();
         } else if ($percent == -1) {
-            \Log::info('completed : ' . $batchId . '|' . $batches->progress);
             $batches->status = 'failed';
             $batches->save();
         }
