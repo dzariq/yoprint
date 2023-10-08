@@ -15,11 +15,8 @@ use App\Http\Controllers\ExportController;
   |
  */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::get('/update_table', [ExportController::class, 'updateTable']);
-Route::get('/export', [ExportController::class, 'uploadCSV'])->name('upload.csv');
+Route::get('/', [ExportController::class, 'uploadCSV'])->name('upload.csv');
 Route::post('/export', [ExportController::class, 'exportCSV'])->name('export.csv');
 
