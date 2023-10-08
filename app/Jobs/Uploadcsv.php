@@ -53,6 +53,8 @@ class Uploadcsv implements ShouldQueue {
             exit();
 
         $onChunkProcessed = function ($rowCount, $done = 0) use ($batch, $totalRows) {
+            \Log::info("processed rows: : " . ($rowCount));
+
             if ($done == 1)
                 Uploadcsv::incrementProgress($batch->id, 100);
             else {
@@ -63,8 +65,6 @@ class Uploadcsv implements ShouldQueue {
         $processedRows = 0;
 
         $csv->each(function ($row)use (&$processedRows, $chunkSize, $onChunkProcessed, $batch) {
-
-            \Log::info("unique key: " . ($row['UNIQUE_KEY']));
 
             $data = [
                 'title' => $row['PRODUCT_TITLE'],
